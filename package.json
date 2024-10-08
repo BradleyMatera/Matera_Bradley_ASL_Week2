@@ -1,0 +1,23 @@
+{
+  "name": "restfulroutesusingexpressjs",
+  "version": "1.0.0",
+  "description": "A RESTful API for managing contacts",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "@jworkman-fs/asl": "^1.2.43",
+    "axios": "^1.7.7",
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "mongoose": "^8.7.0",
+    "nodemon": "^3.1.7"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-extended": "^4.0.2",
+    "supertest": "^7.0.0"
+  }
+}
