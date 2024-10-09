@@ -1,5 +1,5 @@
 const Contact = require('./Contact');
 
 module.exports = {
-  Contact,
+  ContactModel: Contact,  // Export the Mongoose model correctly
 };
