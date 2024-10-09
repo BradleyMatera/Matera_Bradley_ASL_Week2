@@ -1,11 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-// Import the individual route handlers
-const contactRoutes = require('./contacts');
+// You can include a simple route for the root path if needed
+router.get('/', (req, res) => {
+  res.send('Welcome to the Contacts API');
+});
 
-// Mount the contact routes under the `/contacts` path
-router.use('/contacts', contactRoutes);
-
-// Export the router to be used in the main app file
 module.exports = router;

@@ -1,86 +1,93 @@
 const express = require('express');
-const Contact = require('../models/Contact');
 const router = express.Router();
+const Contact = require('../models/Contact');
 
-// Middleware to set Content-Type header for all responses
-router.use((req, res, next) => {
-  res.setHeader('Content-Type', 'application/json');
-  next();
-});
-
-// Get all contacts with pagination, sorting, and filtering
-router.get('/', async (req, res) => {
-  const { page = 1, limit = 10, sort = 'lname', direction = 'asc' } = req.query;
-
+// Get all contacts with the correct schema mapping
+router.get('/contacts', async (req, res) => {
   try {
-    const contacts = await Contact.find()
-      .sort({ [sort]: direction === 'asc' ? 1 : -1 })
-      .skip((page - 1) * limit)
-      .limit(Number(limit));
+    const contacts = await Contact.find();
 
-    const totalContacts = await Contact.countDocuments();
-    const totalPages = Math.ceil(totalContacts / limit);
+    // Map _id to id in the response
+    const formattedContacts = contacts.map(contact => ({
+      id: contact._id,  // Use _id as id in the response
+      fname: contact.fname,
+      lname: contact.lname,
+      email: contact.email,
+      phone: contact.phone,
+      birthday: contact.birthday,
+    }));
 
-    res.status(200).json({
-      contacts,
-      pagination: {
-        currentPage: page,
-        totalPages,
-        totalContacts,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error: ' + error.message });
+    res.json(formattedContacts);
+  } catch (err) {
+    res.status(500).json({ error: 'Error fetching contacts' });
   }
 });
 
-// Create a new contact
-router.post('/', async (req, res) => {
-  const contact = new Contact(req.body);
-  try {
-    const savedContact = await contact.save();
-    res.status(201).location(`/v1/contacts/${savedContact._id}`).json(savedContact);
-  } catch (error) {
-    res.status(400).json({ message: 'Error creating contact: ' + error.message });
-  }
-});
-
-// Get a specific contact by ID
-router.get('/:id', async (req, res) => {
+// Get a single contact by ID
+router.get('/contacts/:id', async (req, res) => {
   try {
     const contact = await Contact.findById(req.params.id);
     if (!contact) {
       return res.status(404).json({ message: 'Contact not found' });
     }
-    res.status(200).json(contact);
-  } catch (error) {
-    res.status(500).json({ message: 'Error retrieving contact: ' + error.message });
+
+    res.json({
+      id: contact._id,
+      fname: contact.fname,
+      lname: contact.lname,
+      email: contact.email,
+      phone: contact.phone,
+      birthday: contact.birthday,
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Error fetching contact' });
   }
 });
 
-// Update a specific contact by ID
-router.put('/:id', async (req, res) => {
+// Create a new contact
+router.post('/contacts', async (req, res) => {
   try {
-    const updatedContact = await Contact.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const { fname, lname, email, phone, birthday } = req.body;
+
+    const newContact = new Contact({ fname, lname, email, phone, birthday });
+    await newContact.save();
+
+    res.status(303).redirect(`/contacts/${newContact._id}`);
+  } catch (err) {
+    if (err.code === 11000) { // Duplicate email
+      return res.status(400).json({ message: 'Email already exists' });
+    }
+    res.status(500).json({ error: 'Error creating contact' });
+  }
+});
+
+// Update a contact by ID
+router.put('/contacts/:id', async (req, res) => {
+  try {
+    const { fname, lname, email, phone, birthday } = req.body;
+
+    const updatedContact = await Contact.findByIdAndUpdate(req.params.id, { fname, lname, email, phone, birthday }, { new: true });
     if (!updatedContact) {
       return res.status(404).json({ message: 'Contact not found' });
     }
-    res.status(200).json(updatedContact);
-  } catch (error) {
-    res.status(400).json({ message: 'Error updating contact: ' + error.message });
+
+    res.status(303).redirect(`/contacts/${updatedContact._id}`);
+  } catch (err) {
+    res.status(500).json({ error: 'Error updating contact' });
   }
 });
 
-// Delete a specific contact by ID
-router.delete('/:id', async (req, res) => {
+// Delete a contact by ID
+router.delete('/contacts/:id', async (req, res) => {
   try {
     const deletedContact = await Contact.findByIdAndDelete(req.params.id);
     if (!deletedContact) {
       return res.status(404).json({ message: 'Contact not found' });
     }
-    res.status(204).send(); // Send a 204 No Content status
-  } catch (error) {
-    res.status(500).json({ message: 'Error deleting contact: ' + error.message });
+
+    res.json(deletedContact);
+  } catch (err) {
+    res.status(500).json({ error: 'Error deleting contact' });
   }
 });
 

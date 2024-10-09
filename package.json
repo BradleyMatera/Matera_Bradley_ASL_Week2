@@ -1,23 +1,22 @@
 {
-  "name": "restfulroutesusingexpressjs",
+  "name": "contacts-api",
   "version": "1.0.0",
   "description": "A RESTful API for managing contacts",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "test": "jest"
   },
   "dependencies": {
-    "@jworkman-fs/asl": "^1.2.43",
-    "axios": "^1.7.7",
-    "body-parser": "^1.20.3",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.1",
-    "mongoose": "^8.7.0",
-    "nodemon": "^3.1.7"
+    "axios": "^0.27.2",
+    "body-parser": "^1.19.0",
+    "express": "^4.18.1",
+    "mongoose": "^6.9.1",
+    "node-libcurl": "^2.3.3"
   },
   "devDependencies": {
-    "jest": "^29.7.0",
-    "jest-extended": "^4.0.2",
-    "supertest": "^7.0.0"
-  }
+    "jest": "^28.1.3"
+  },
+  "author": "Bradley Matera",
+  "license": "MIT"
 }
